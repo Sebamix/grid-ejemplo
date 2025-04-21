@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reporte con Grid.js</title>
+
+  <!-- Tailwind CSS (CDN) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Grid.js CSS -->
+  <link href="https://unpkg.com/gridjs/dist/theme/mermaid.min.css" rel="stylesheet" />
+
+  <!-- Grid.js -->
+  <script src="https://unpkg.com/gridjs/dist/gridjs.umd.js"></script>
+
+  <!-- SheetJS (Excel) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+  <!-- jsPDF (PDF) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body class="bg-gray-100 p-8">
+
+  <div class="bg-white p-6 rounded shadow-md">
+    <h1 class="text-2xl font-bold mb-4">Reporte de Ventas</h1>
+
+    <!-- Contenedor de la tabla -->
+    <div id="wrapper"></div>
+
+    <!-- Botones de exportación -->
+    <div class="mt-6 flex space-x-4">
+      <button onclick="exportarExcel()" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
+        Exportar Excel
+      </button>
+      <button onclick="exportarPDF()" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">
+        Exportar PDF
+      </button>
+    </div>
+  </div>
+
+  <script>
+    // Datos del reporte
+    const data = [
+      ["Producto A", 10, 100],
+      ["Producto B", 5, 50],
+      ["Producto C", 8, 80],
+    ];
+
+    // Render de la tabla con Grid.js
+    const grid = new gridjs.Grid({
+      columns: ["Producto", "Cantidad", "Precio"],
+      data: data,
+      pagination: true,
+      search: true,
+      sort: true
+    }).render(document.getElementById("wrapper"));
+
+    // Exportar a Excel
+    function exportarExcel() {
+      const ws = XLSX.utils.aoa_to_sheet([["Producto", "Cantidad", "Precio"], ...data]);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Reporte");
+      XLSX.writeFile(wb, "reporte.xlsx");
+    }
+
+    // Exportar a PDF
+    async function exportarPDF() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+
+      doc.setFontSize(14);
+      doc.text("Reporte de Ventas", 10, 10);
+
+      let startY = 20;
+      data.forEach((row, i) => {
+        doc.text(row.join(" | "), 10, startY + (i * 10));
+      });
+
+      doc.save("reporte.pdf");
+    }
+  </script>
+
+</body>
+</html>
